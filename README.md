@@ -6,9 +6,15 @@ In student management.
 
 # Features
 1- Insert a student
-2. Delete a student
-3. Search for a student
-4. Inorder Traversal
-5. Preorder Traversal
-6. Postorder Traversal
-7. Display Average Grade
+
+2- Delete a student
+
+3- Search for a student
+
+4- Inorder Traversal
+
+5- Preorder Traversal
+
+6- Postorder Traversal
+
+7- Display Average Grade
