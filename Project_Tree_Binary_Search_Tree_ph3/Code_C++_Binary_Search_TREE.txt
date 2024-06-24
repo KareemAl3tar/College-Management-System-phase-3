@@ -1,0 +1,218 @@
+#include <iostream>
+using namespace std;
+
+// Define a structure for student records
+struct Student {
+    int grade;
+    string name;
+    string letterGrade;
+    Student* left;
+    Student* right;
+};
+
+// Function to create a new student node
+Student* createStudent(int grade, string name) {
+    Student* newNode = new Student;
+    newNode->grade = grade;
+    newNode->name = name;
+    newNode->left = newNode->right = nullptr;
+    // Calculate and assign letter grade
+    if (grade >= 90)
+        newNode->letterGrade = "A";
+    else if (grade >= 80)
+        newNode->letterGrade = "B";
+    else if (grade >= 70)
+        newNode->letterGrade = "C";
+    else if (grade >= 60)
+        newNode->letterGrade = "D";
+    else
+        newNode->letterGrade = "F";
+    return newNode;
+}
+
+// Function to insert a student into the binary search tree
+Student* insertStudent(Student* root, int grade, string name) {
+    if (grade < 0 || grade > 100) {
+        cout << "Invalid grade. Grade must be between 0 and 100." << endl;
+        return root;
+    }
+
+    if (root == nullptr)
+        return createStudent(grade, name);
+
+    if (grade < root->grade)
+        root->left = insertStudent(root->left, grade, name);
+    else if (grade > root->grade)
+        root->right = insertStudent(root->right, grade, name);
+
+    return root;
+}
+
+// Function to perform inorder traversal (left-root-right)
+void inorderTraversal(Student* root) {
+    if (root != nullptr) {
+        inorderTraversal(root->left);
+        cout << "Grade: " << root->grade << " (" << root->letterGrade << "), Name: " << root->name << endl;
+        inorderTraversal(root->right);
+    }
+}
+
+// Function to perform preorder traversal (root-left-right)
+void preorderTraversal(Student* root) {
+    if (root != nullptr) {
+        cout << "Grade: " << root->grade << " (" << root->letterGrade << "), Name: " << root->name << endl;
+        preorderTraversal(root->left);
+        preorderTraversal(root->right);
+    }
+}
+
+// Function to perform postorder traversal (left-right-root)
+void postorderTraversal(Student* root) {
+    if (root != nullptr) {
+        postorderTraversal(root->left);
+        postorderTraversal(root->right);
+        cout << "Grade: " << root->grade << " (" << root->letterGrade << "), Name: " << root->name << endl;
+    }
+}
+
+// Function to search for a student by grade
+Student* searchStudent(Student* root, int grade) {
+    if (root == nullptr || root->grade == grade)
+        return root;
+
+    if (root->grade < grade)
+        return searchStudent(root->right, grade);
+
+    return searchStudent(root->left, grade);
+}
+
+// Function to find the minimum value node in a BST
+Student* minValueStudent(Student* node) {
+    Student* current = node;
+
+    while (current && current->left != nullptr)
+        current = current->left;
+
+    return current;
+}
+
+// Function to delete a student from the binary search tree
+Student* deleteStudent(Student* root, int grade) {
+    if (root == nullptr)
+        return root;
+
+    if (grade < root->grade)
+        root->left = deleteStudent(root->left, grade);
+    else if (grade > root->grade)
+        root->right = deleteStudent(root->right, grade);
+    else {
+        if (root->left == nullptr) {
+            Student* temp = root->right;
+            delete root;
+            return temp;
+        }
+        else if (root->right == nullptr) {
+            Student* temp = root->left;
+            delete root;
+            return temp;
+        }
+
+        Student* temp = minValueStudent(root->right);
+        root->grade = temp->grade;
+        root->name = temp->name;
+        root->right = deleteStudent(root->right, temp->grade);
+    }
+    return root;
+}
+
+// Function to calculate total and count for average calculation
+int calculateAverageGrade(Student* root, int& count, int& total) {
+    if (root != nullptr) {
+        total += root->grade;
+        count++;
+        calculateAverageGrade(root->left, count, total);
+        calculateAverageGrade(root->right, count, total);
+    }
+    return total;
+}
+
+// Function to display average grade
+void displayAverageGrade(Student* root) {
+    int count = 0;
+    int total = 0;
+    double average = calculateAverageGrade(root, count, total) / (double)count;
+
+    if (count > 0) {
+        cout << "Average Grade: " << average << endl;
+    } else {
+        cout << "No students in the database." << endl;
+    }
+}
+
+// Function to run the main program
+void runProgram() {
+    Student* root = nullptr;
+    int choice, grade;
+    string name;
+
+    do {
+        cout << "\n1. Insert a student";
+        cout << "\n2. Delete a student";
+        cout << "\n3. Search for a student";
+        cout << "\n4. Inorder Traversal";
+        cout << "\n5. Preorder Traversal";
+        cout << "\n6. Postorder Traversal";
+        cout << "\n7. Display Average Grade";
+        cout << "\n8. Exit";
+        cout << "\nEnter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter student's name: ";
+                cin >> name;
+                cout << "Enter student's grade: ";
+                cin >> grade;
+                root = insertStudent(root, grade, name);
+                break;
+            case 2:
+                cout << "Enter the grade of the student to delete: ";
+                cin >> grade;
+                root = deleteStudent(root, grade);
+                break;
+            case 3:
+                cout << "Enter the grade of the student to search for: ";
+                cin >> grade;
+                if (searchStudent(root, grade) != nullptr)
+                    cout << "Student found!" << endl;
+                else
+                    cout << "Student not found." << endl;
+                break;
+            case 4:
+                cout << "Inorder Traversal:" << endl;
+                inorderTraversal(root);
+                break;
+            case 5:
+                cout << "Preorder Traversal:" << endl;
+                preorderTraversal(root);
+                break;
+            case 6:
+                cout << "Postorder Traversal:" << endl;
+                postorderTraversal(root);
+                break;
+            case 7:
+                displayAverageGrade(root);
+                break;
+            case 8:
+                cout << "Exiting...";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.";
+        }
+    } while (choice != 8);
+}
+
+int main() {
+    runProgram();
+    return 0;
+}
